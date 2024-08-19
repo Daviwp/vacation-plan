@@ -13,7 +13,7 @@ First, clone the repository to your local machine:
 
 2. ## Build and Start Docker Containers
 Use Docker Compose to build and start the containers:
-    ```bash
+
     docker-compose up --build
 
 This command will build the Docker images defined in your docker-compose.yml file and start the containers for MariaDB, Nginx, and PHP. The application should be accessible at http://localhost:8000
