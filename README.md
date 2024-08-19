@@ -7,7 +7,6 @@ To set up and run the Vacation Plan API project using Docker, follow these steps
 
 1. ## Clone the Repository
 First, clone the repository to your local machine:
-    
     ```bash
     git clone https://github.com/Daviwp/vacation-plan.git
     cd vacation-plan
