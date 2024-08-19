@@ -154,9 +154,3 @@ Returns an error when a route or HTTP method is not supported by the API.
 
 **Response:**  
 Returns an error message with a `404 Not Found` status.
-
----
-
-## Contributions
-
-Contributions to this project are welcome. Please fork the repository and submit a pull request for review.
