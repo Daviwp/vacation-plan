@@ -7,28 +7,37 @@ To set up and run the Vacation Plan API project using Docker, follow these steps
 
 1. ## Clone the Repository
 First, clone the repository to your local machine:
- `git clone https://github.com/Daviwp/vacation-plan.git`
-`cd vacation-plan` 
+    
+    ```bash
+    git clone https://github.com/Daviwp/vacation-plan.git
+    cd vacation-plan
 
 2. ## Build and Start Docker Containers
 Use Docker Compose to build and start the containers:
-`docker-compose up --build`
+    ```bash
+    docker-compose up --build
+
 This command will build the Docker images defined in your docker-compose.yml file and start the containers for MariaDB, Nginx, and PHP. The application should be accessible at http://localhost:8000
 
 3. ## Access the Application
 Once the Docker containers are running, you can access the application by navigating to http://localhost:8000 in your web browser or through API testing tools like Postman.
 
-# Access the PHP container
-`docker-compose exec php bash`
+4. ## Access the PHP container
 
-# Inside the PHP container, run Laravel setup commands
-`composer install`
-`php artisan migrate`
+    ```bash
+    docker-compose exec php bash
+
+5. ## Inside the PHP container, run Laravel setup commands
+
+    ```bash
+    composer install
+    php artisan migrate
+
 - composer install installs the PHP dependencies for the Laravel application.
 - php artisan migrate runs the database migrations to set up the necessary database tables.
 
 
-4. ## Additional Commands
+6. ## Additional Commands
 After starting the Docker containers, you might need to run additional commands to set up the Laravel application. Open a new terminal window and execute the following commands inside the Docker container:
 
 ## Authentication
