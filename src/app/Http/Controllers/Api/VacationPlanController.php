@@ -29,15 +29,8 @@ class VacationPlanController extends Controller
                 'description' => 'required|string',
                 'date' => 'required|date_format:Y-m-d',
                 'location' => 'required|string',
-                'participants' => 'nullable|string'
-            ], [
-                'date.date_format' => 'The date must be in the format Y-m-d (e.g., 2024-08-19).'
+                'participants' => 'nullable|array', // Aceita array diretamente
             ]);
-
-            if ($request->has('participants')) {
-                $participants = array_map('trim', explode(',', $request->input('participants')));
-                $request->merge(['participants' => json_encode($participants)]);
-            }
 
             $plan = VacationPlan::create($request->all());
 
@@ -50,11 +43,16 @@ class VacationPlanController extends Controller
         }
     }
 
-
     public function show($id)
     {
         try {
             $plan = VacationPlan::findOrFail($id);
+
+            // Decodificar participantes se for uma string JSON
+            if (is_string($plan->participants)) {
+                $plan->participants = json_decode($plan->participants, true);
+            }
+
             return response()->json($plan, 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['error' => 'Vacation plan not found'], 404);
@@ -66,8 +64,6 @@ class VacationPlanController extends Controller
 
     public function update(Request $request, $id)
     {
-        $startTime = microtime(true);
-
         try {
             $plan = VacationPlan::findOrFail($id);
 
@@ -76,21 +72,10 @@ class VacationPlanController extends Controller
                 'description' => 'sometimes|required|string',
                 'date' => 'sometimes|required|date_format:Y-m-d',
                 'location' => 'sometimes|required|string',
-                'participants' => 'sometimes|nullable|string'
-            ], [
-                'date.date_format' => 'The date must be in the format Y-m-d (e.g., 2024-08-19).'
+                'participants' => 'sometimes|nullable|array', // Aceita array diretamente
             ]);
 
-            if ($request->has('participants')) {
-                $participants = array_map('trim', explode(',', $request->input('participants')));
-                $request->merge(['participants' => json_encode($participants)]);
-            }
-
             $plan->update($request->all());
-
-            $endTime = microtime(true);
-            $executionTime = $endTime - $startTime;
-            Log::info("Execution time for update: {$executionTime} seconds");
 
             return response()->json($plan, 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -102,6 +87,7 @@ class VacationPlanController extends Controller
             return response()->json(['error' => 'Unable to update vacation plan', 'message' => $e->getMessage()], 500);
         }
     }
+
     public function destroy($id)
     {
         try {
@@ -119,13 +105,27 @@ class VacationPlanController extends Controller
 
     public function generatePdf($id)
     {
-        $startTime = microtime(true);
-
         try {
             $plan = VacationPlan::findOrFail($id);
-
-            $plan->participants = implode(', ', json_decode($plan->participants, true));
-
+    
+            // Decodificar participantes se necessário e converter para string
+            if (is_string($plan->participants)) {
+                $participantsArray = json_decode($plan->participants, true);
+                if (is_array($participantsArray)) {
+                    $plan->participants = implode(', ', $participantsArray);
+                } else {
+                    $plan->participants = ''; // Se JSON não for um array válido
+                }
+            } elseif (is_array($plan->participants)) {
+                $plan->participants = implode(', ', $plan->participants);
+            } else {
+                $plan->participants = '';
+            }
+    
+            // Log para depuração
+            Log::info("Formatted Participants: " . $plan->participants);
+    
+            // Gerar PDF
             $pdf = PDF::loadView('pdf.vacation-plan', compact('plan'));
             return $pdf->download('vacation-plan-' . $id . '.pdf');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -135,4 +135,8 @@ class VacationPlanController extends Controller
             return response()->json(['error' => 'Unable to generate PDF', 'message' => $e->getMessage()], 500);
         }
     }
+    
+
+
+
 }
